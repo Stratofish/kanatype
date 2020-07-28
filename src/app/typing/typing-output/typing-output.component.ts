@@ -8,11 +8,10 @@ import {TypingService} from "../typing-service.service";
 })
 export class TypingOutputComponent implements OnInit {
 
-  public sentence: String;
-  public typedSentence: String;
+  public currentPhrase;
 
   constructor(protected service: TypingService) {
-    this.sentence = this.service.sentences[0];
+    this.currentPhrase = this.service.currentPhrase;
   }
 
   ngOnInit(): void {
