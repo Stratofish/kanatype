@@ -1,2 +1,4 @@
-<input type="text" [(ngModel)]="char" (keypress)="onChange($event)">
-{{ char }}
+<div class="main-input-container">
+  <input type="text" [(ngModel)]="char" (keypress)="onChange($event)" class="main-input">
+  {{ char }}
+</div>

@@ -1,10 +1,13 @@
 import { Injectable } from '@angular/core';
 import {Character} from "./character";
+import {forEachComment} from "tslint";
 
 @Injectable({
   providedIn: 'root'
 })
 export class TypingService {
+  listeners: Array<Function> = [];
+
   alphabet: Array<Character> = [
     new Character('あ', 'a'),
     new Character('い', 'i'),
@@ -102,6 +105,10 @@ export class TypingService {
     let pos = this.currentPhrase.progress.length;
     if (this.currentPhrase.phrase.substring(pos, pos+1) === char) {
       this.currentPhrase.progress += char;
+
+      for (let i = 0; i < this.listeners.length; i++) {
+        this.listeners[i](this.currentPhrase.progress, 'a', 'b');
+      }
       return true;
     }
 
@@ -109,14 +116,16 @@ export class TypingService {
   }
 
   public getChar(char: string) {
-    console.log(char);
     for (let i = 0; i < this.alphabet.length; i++) {
       if (this.alphabet[i].romaji === char) {
-        console.log(char, this.alphabet[i].romaji)
         return this.alphabet[i].glyph;
       }
     }
 
     return '';
+  }
+
+  public addListener(func: Function) {
+    this.listeners.push(func);
   }
 }
