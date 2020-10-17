@@ -1,11 +1,15 @@
-import { Injectable } from '@angular/core';
+import {EventEmitter, Injectable, Output} from '@angular/core';
 import {Character} from "./character";
-import {forEachComment} from "tslint";
+import {ProgressUpdateModel} from "./progress-update.model";
+import {BehaviorSubject} from "rxjs";
 
 @Injectable({
   providedIn: 'root'
 })
 export class TypingService {
+  private typingUpdateSource = new BehaviorSubject<ProgressUpdateModel>(new ProgressUpdateModel('', '', ''));
+  public $typingUpdate = this.typingUpdateSource.asObservable();
+
   listeners: Array<Function> = [];
 
   alphabet: Array<Character> = [
@@ -97,8 +101,9 @@ export class TypingService {
   };
 
   constructor() {
-    this.currentPhrase.phrase = this.sentences[0];
+    this.currentPhrase.phrase = this.sentences[Math.floor(Math.random()*this.sentences.length)];
     this.currentPhrase.progress = '';
+    this.typingUpdateSource.next(new ProgressUpdateModel(this.currentPhrase.progress, this.currentPhrase.phrase.substr(this.currentPhrase.progress.length, 1), this.currentPhrase.phrase.substr(this.currentPhrase.progress.length+1)));
   }
 
   public checkChar(char: string) {
@@ -106,9 +111,9 @@ export class TypingService {
     if (this.currentPhrase.phrase.substring(pos, pos+1) === char) {
       this.currentPhrase.progress += char;
 
-      for (let i = 0; i < this.listeners.length; i++) {
-        this.listeners[i](this.currentPhrase.progress, 'a', 'b');
-      }
+      console.log('Emitting');
+      this.typingUpdateSource.next(new ProgressUpdateModel(this.currentPhrase.progress, this.currentPhrase.phrase.substr(this.currentPhrase.progress.length, 1), this.currentPhrase.phrase.substr(this.currentPhrase.progress.length+1)));
+
       return true;
     }
 

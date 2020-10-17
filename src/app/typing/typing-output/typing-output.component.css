@@ -9,6 +9,7 @@
   border: 1px black solid;
 }
 .progress-current {
+  color: black
 }
 
 .progress-completed {
@@ -16,5 +17,5 @@
 }
 
 .progress-todo {
-  color: black
+  color: gray
 }

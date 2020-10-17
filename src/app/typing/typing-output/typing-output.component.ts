@@ -1,5 +1,7 @@
-import {Component, OnInit, Output} from '@angular/core';
+import {Component, Input, OnInit, Output} from '@angular/core';
 import {TypingService} from "../typing-service.service";
+import {ProgressUpdateModel} from "../progress-update.model"
+import {Subscription} from "rxjs";
 
 @Component({
   selector: 'app-typing-output',
@@ -8,28 +10,32 @@ import {TypingService} from "../typing-service.service";
 })
 export class TypingOutputComponent implements OnInit {
 
+  private subscription: Subscription;
+
   public currentPhrase;
 
-  public phraseCompleted: string = 'ab';
-  public phraseCurrentGlyph: string = 'cd';
-  public phraseTodo: string = 'ef';
+  public phraseCompleted: string = '';
+  public phraseCurrentGlyph: string = '';
+  public phraseTodo: string = '';
 
   constructor(protected service: TypingService) {
-    this.phraseCompleted = 'ab';
     this.currentPhrase = this.service.currentPhrase;
-    this.service.addListener(this.updateMe);
+    this.subscription = this.service.$typingUpdate.subscribe(item => this.onPhraseUpdate(item));
   }
 
-  public updateMe(completed: string, currentGlyph: string, todo: string) {
-    console.log('update', completed);
+  public onPhraseUpdate($event: ProgressUpdateModel) {
+    console.log('update', $event.completed);
 
-    this.phraseCompleted += '.';//completed;
+    this.phraseCompleted = $event.completed;//completed;
     console.log(this.phraseCompleted);
-    this.phraseCurrentGlyph = currentGlyph;
-    this.phraseTodo = todo;
+    this.phraseCurrentGlyph = $event.currentGlyph;
+    this.phraseTodo = $event.todo;
   }
 
   ngOnInit(): void {
   }
 
+  ngOnDestroy() {
+    this.subscription.unsubscribe();
+  }
 }
