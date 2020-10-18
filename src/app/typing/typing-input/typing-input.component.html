@@ -1,4 +1,4 @@
 <div class="main-input-container">
-  <input type="text" [(ngModel)]="char" (keypress)="onChange($event)" class="main-input">
-  {{ char }}
+  <input type="text" [(ngModel)]="char" (keypress)="onKeypress($event)" (input)="onChange($event)" class="main-input">
+  <span class="bad-glyph">{{typed}}</span>
 </div>

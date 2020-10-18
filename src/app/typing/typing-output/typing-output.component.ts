@@ -24,10 +24,7 @@ export class TypingOutputComponent implements OnInit {
   }
 
   public onPhraseUpdate($event: ProgressUpdateModel) {
-    console.log('update', $event.completed);
-
     this.phraseCompleted = $event.completed;//completed;
-    console.log(this.phraseCompleted);
     this.phraseCurrentGlyph = $event.currentGlyph;
     this.phraseTodo = $event.todo;
   }

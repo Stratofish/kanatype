@@ -1,5 +1,5 @@
 .main-input-container {
-  width: 500px;
+  width: 75px;
   margin: 0 auto;
 }
 
@@ -9,5 +9,9 @@
   font-size: 30px;
   color: black;
   height: 50px;
-  width: 500px;
+  width: 75px;
+}
+
+.bad-glyph {
+  color: red;
 }

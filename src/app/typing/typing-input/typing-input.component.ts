@@ -9,11 +9,12 @@ import {TypingService} from "../typing-service.service";
 export class TypingInputComponent implements OnInit {
 
   public char: string = '';
+  public typed: string = '';
 
   constructor(protected service: TypingService) { }
 
   @Input()
-  public onChange($event) {
+  public onKeypress($event) {
     let glyph = this.service.getChar(this.char + $event.key);
     if ((glyph !== '') &&
       (this.service.checkChar(glyph)))
@@ -21,12 +22,20 @@ export class TypingInputComponent implements OnInit {
       this.char = '';
     } else {
       this.char += $event.key;
+      this.typed = glyph;
     }
     $event.preventDefault();
     $event.stopPropagation();
   }
 
-  ngOnInit(): void {
+  @Input()
+  public onChange($event) {
+    let glyph = this.service.getChar(this.char);
+    this.typed = glyph;
   }
 
+  ngOnInit(): void {
+  }
 }
+
+

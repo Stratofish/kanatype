@@ -110,8 +110,6 @@ export class TypingService {
     let pos = this.currentPhrase.progress.length;
     if (this.currentPhrase.phrase.substring(pos, pos+1) === char) {
       this.currentPhrase.progress += char;
-
-      console.log('Emitting');
       this.typingUpdateSource.next(new ProgressUpdateModel(this.currentPhrase.progress, this.currentPhrase.phrase.substr(this.currentPhrase.progress.length, 1), this.currentPhrase.phrase.substr(this.currentPhrase.progress.length+1)));
 
       return true;
