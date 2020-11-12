@@ -21,7 +21,12 @@
             "aot": true,
             "assets": [
               "src/favicon.ico",
-              "src/assets"
+              "src/assets",
+              {
+                "glob": "**/*",
+                "input": "./node_modules/kuromoji/dict",
+                "output": "./node_modules/kuromoji/dict/"
+              },
             ],
             "styles": [
               "src/styles.css"

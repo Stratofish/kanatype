@@ -30,8 +30,7 @@ export class TypingInputComponent implements OnInit {
 
   @Input()
   public onChange($event) {
-    let glyph = this.service.getChar(this.char);
-    this.typed = glyph;
+    this.typed = this.service.getChar(this.char);
   }
 
   ngOnInit(): void {

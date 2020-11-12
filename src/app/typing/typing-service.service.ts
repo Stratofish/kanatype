@@ -2,6 +2,8 @@ import {EventEmitter, Injectable, Output} from '@angular/core';
 import {Character} from "./character";
 import {ProgressUpdateModel} from "./progress-update.model";
 import {BehaviorSubject} from "rxjs";
+import Kuroshiro from "kuroshiro";
+import KuromojiAnalyzer from "kuroshiro-analyzer-kuromoji";
 
 @Injectable({
   providedIn: 'root'
@@ -30,6 +32,7 @@ export class TypingService {
     new Character('ご', 'go'),
     new Character('さ', 'sa'),
     new Character('し', 'shi'),
+    new Character('じ', 'ji'),
     new Character('す', 'su'),
     new Character('せ', 'se'),
     new Character('そ', 'so'),
@@ -85,7 +88,16 @@ export class TypingService {
     new Character('ゐ', 'wi'),
     new Character('ゑ', 'we'),
     new Character('を', 'wo'),
-    new Character('ん', 'n')
+    new Character('ん', 'n'),
+    new Character('・', '.'),
+    new Character('。', '.'),
+    new Character('1', '1'),
+    new Character('8', '8'),
+  ];
+  extendedAlphabet: Array<Character> = [
+    new Character('きょ', 'kyo'),
+    new Character('しゃ', 'sha'),
+    new Character('っし', 'sshi')
   ];
   sentences: Array<string> = [
     'わるいにわとりとわにいるわ',
@@ -102,13 +114,34 @@ export class TypingService {
 
   constructor() {
     this.currentPhrase.phrase = this.sentences[Math.floor(Math.random()*this.sentences.length)];
+    const kuroshiro = new Kuroshiro();
+    let phrase = this.currentPhrase;
+    let self = this;
+    kuroshiro.init(new KuromojiAnalyzer()).then(function(){
+      console.log('東京・浅草の三社祭が18日実施され、トラックに乗った神輿（みこし）が44町内を巡回した。例年は5月に催され約180万人の人出でにぎわうが、今年は新型コロナウイルスの影響で延期されていた。密を避けるため神輿を担いで回る渡御は見送り、3基ある神輿のうち1基のみが大通りを中心に4時間ほど巡行した。');
+      //kuroshiro.convert('東京・浅草の三社祭が18日実施され、トラックに乗った神輿（みこし）が44町内を巡回した。例年は5月に催され約180万人の人出でにぎわうが、今年は新型コロナウイルスの影響で延期されていた。密を避けるため神輿を担いで回る渡御は見送り、3基ある神輿のうち1基のみが大通りを中心に4時間ほど巡行した。').then(function (data) {
+      kuroshiro.convert('東京・浅草の三社祭が18日実施され', { to: "hiragana", mode: "normal" }).then(function (data) {
+
+        //Furigana parse get - build typed glyph list in advance as array for simpler lookup, plus displayed furigana if requested
+
+        console.log(data);
+        phrase.phrase = data;
+        phrase.progress = '';
+        self.typingUpdateSource.next(new ProgressUpdateModel(phrase.progress, phrase.phrase.substr(phrase.progress.length, 1), phrase.phrase.substr(phrase.progress.length+1)));
+        console.log(data);
+      }, function (result) {
+        console.log(result);
+      });
+    });
     this.currentPhrase.progress = '';
     this.typingUpdateSource.next(new ProgressUpdateModel(this.currentPhrase.progress, this.currentPhrase.phrase.substr(this.currentPhrase.progress.length, 1), this.currentPhrase.phrase.substr(this.currentPhrase.progress.length+1)));
   }
 
   public checkChar(char: string) {
-    let pos = this.currentPhrase.progress.length;
-    if (this.currentPhrase.phrase.substring(pos, pos+1) === char) {
+    let found = false;
+
+    if (this.getNextChar() === char)
+    {
       this.currentPhrase.progress += char;
       this.typingUpdateSource.next(new ProgressUpdateModel(this.currentPhrase.progress, this.currentPhrase.phrase.substr(this.currentPhrase.progress.length, 1), this.currentPhrase.phrase.substr(this.currentPhrase.progress.length+1)));
 
@@ -118,7 +151,33 @@ export class TypingService {
     return false;
   }
 
+  private getNextChar() {
+    let pos = this.currentPhrase.progress.length;
+
+    let extended = this.currentPhrase.phrase.substring(pos, pos + 2);
+    if (this.extendedAlphabet.findIndex(function(char){
+      return char.glyph === extended;
+    }) != -1) {
+      return extended;
+    }
+
+    let single = this.currentPhrase.phrase.substring(pos, pos + 1);
+    if (this.alphabet.findIndex(function(char){
+      return char.glyph === single;
+    }) != -1) {
+      return single;
+    }
+
+    return '';
+  }
+
   public getChar(char: string) {
+    for (let i = 0; i < this.extendedAlphabet.length; i++) {
+      if (this.extendedAlphabet[i].romaji === char) {
+        return this.extendedAlphabet[i].glyph;
+      }
+    }
+
     for (let i = 0; i < this.alphabet.length; i++) {
       if (this.alphabet[i].romaji === char) {
         return this.alphabet[i].glyph;
